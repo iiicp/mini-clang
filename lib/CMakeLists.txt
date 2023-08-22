@@ -1,14 +1,16 @@
+add_subdirectory(Headers)
 add_subdirectory(Basic)
 add_subdirectory(Lex)
-add_subdirectory(Frontend)
-# add_subdirectory(CodeGen)
 add_subdirectory(Parse)
-# add_subdirectory(Sema)
-# add_subdirectory(Support)
-set(lcc_src
-        ${lccBasic}
-        ${lccLex}
-        ${lccFrontend}
-        ${lccParse}
-        )
-add_library(LCC STATIC ${lcc_src})
+add_subdirectory(AST)
+add_subdirectory(Sema)
+add_subdirectory(CodeGen)
+add_subdirectory(Analysis)
+add_subdirectory(Rewrite)
+add_subdirectory(ARCMigrate)
+add_subdirectory(Driver)
+add_subdirectory(Serialization)
+add_subdirectory(Frontend)
+add_subdirectory(FrontendTool)
+add_subdirectory(Index)
+add_subdirectory(StaticAnalyzer)

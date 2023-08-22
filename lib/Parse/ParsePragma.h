@@ -17,40 +17,101 @@
 #include "clang/Lex/Pragma.h"
 
 namespace clang {
-  class Action;
+  class Sema;
   class Parser;
 
-  class PragmaPackHandler : public PragmaHandler {
-    Action &Actions;
-
+class PragmaAlignHandler : public PragmaHandler {
+  Sema &Actions;
 public:
-    PragmaPackHandler(const IdentifierInfo *N, Action &A) : PragmaHandler(N),
-                                                            Actions(A) {}
+  explicit PragmaAlignHandler(Sema &A) : PragmaHandler("align"), Actions(A) {}
 
-    virtual void HandlePragma(Preprocessor &PP, Token &FirstToken);
-  };
+  virtual void HandlePragma(Preprocessor &PP, PragmaIntroducerKind Introducer,
+                            Token &FirstToken);
+};
 
-  class PragmaUnusedHandler : public PragmaHandler {
-    Action &Actions;
-    Parser &parser;
-
+class PragmaGCCVisibilityHandler : public PragmaHandler {
+  Sema &Actions;
 public:
-    PragmaUnusedHandler(const IdentifierInfo *N, Action &A, Parser &p)
-        : PragmaHandler(N), Actions(A), parser(p) {}
+  explicit PragmaGCCVisibilityHandler(Sema &A) : PragmaHandler("visibility"),
+                                                 Actions(A) {}
 
-    virtual void HandlePragma(Preprocessor &PP, Token &FirstToken);
-  };
+  virtual void HandlePragma(Preprocessor &PP, PragmaIntroducerKind Introducer,
+                            Token &FirstToken);
+};
 
-  class PragmaWeakHandler : public PragmaHandler {
-    Action &Actions;
-
+class PragmaOptionsHandler : public PragmaHandler {
+  Sema &Actions;
 public:
-    PragmaWeakHandler(const IdentifierInfo *N, Action &A)
-        : PragmaHandler(N), Actions(A) {}
+  explicit PragmaOptionsHandler(Sema &A) : PragmaHandler("options"),
+                                           Actions(A) {}
 
-    virtual void HandlePragma(Preprocessor &PP, Token &FirstToken);
-  };
+  virtual void HandlePragma(Preprocessor &PP, PragmaIntroducerKind Introducer,
+                            Token &FirstToken);
+};
 
-}// namespace clang
+class PragmaPackHandler : public PragmaHandler {
+  Sema &Actions;
+public:
+  explicit PragmaPackHandler(Sema &A) : PragmaHandler("pack"),
+                                        Actions(A) {}
+
+  virtual void HandlePragma(Preprocessor &PP, PragmaIntroducerKind Introducer,
+                            Token &FirstToken);
+};
+  
+class PragmaMSStructHandler : public PragmaHandler {
+  Sema &Actions;
+public:
+  explicit PragmaMSStructHandler(Sema &A) : PragmaHandler("ms_struct"),
+  Actions(A) {}
+    
+  virtual void HandlePragma(Preprocessor &PP, PragmaIntroducerKind Introducer,
+                            Token &FirstToken);
+};
+
+class PragmaUnusedHandler : public PragmaHandler {
+  Sema &Actions;
+  Parser &parser;
+public:
+  PragmaUnusedHandler(Sema &A, Parser& p)
+    : PragmaHandler("unused"), Actions(A), parser(p) {}
+
+  virtual void HandlePragma(Preprocessor &PP, PragmaIntroducerKind Introducer,
+                            Token &FirstToken);
+};
+
+class PragmaWeakHandler : public PragmaHandler {
+  Sema &Actions;
+public:
+  explicit PragmaWeakHandler(Sema &A)
+    : PragmaHandler("weak"), Actions(A) {}
+
+  virtual void HandlePragma(Preprocessor &PP, PragmaIntroducerKind Introducer,
+                            Token &FirstToken);
+};
+
+class PragmaOpenCLExtensionHandler : public PragmaHandler {
+  Sema &Actions;
+  Parser &parser;
+public:
+  PragmaOpenCLExtensionHandler(Sema &S, Parser& p) : 
+    PragmaHandler("EXTENSION"), Actions(S), parser(p) {}
+  virtual void HandlePragma(Preprocessor &PP, PragmaIntroducerKind Introducer,
+                            Token &FirstToken);
+};
+  
+
+class PragmaFPContractHandler : public PragmaHandler {
+  Sema &Actions;
+  Parser &parser;
+public:
+  PragmaFPContractHandler(Sema &S, Parser& p) : 
+    PragmaHandler("FP_CONTRACT"), Actions(S), parser(p) {}
+  virtual void HandlePragma(Preprocessor &PP, PragmaIntroducerKind Introducer,
+                            Token &FirstToken);
+};
+  
+
+}  // end namespace clang
 
 #endif

@@ -18,71 +18,56 @@
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Basic/SourceLocation.h"
 
-namespace llvm {
-  class raw_ostream;
-}
-
 namespace clang {
-  class SourceManager;
-  class LangOptions;
+class DiagnosticOptions;
+class LangOptions;
 
-  class TextDiagnosticPrinter : public DiagnosticClient {
-    llvm::raw_ostream &OS;
-    const LangOptions *LangOpts;
-    SourceLocation LastWarningLoc;
-    FullSourceLoc LastLoc;
-    bool LastCaretDiagnosticWasNote;
+class TextDiagnosticPrinter : public DiagnosticConsumer {
+  raw_ostream &OS;
+  const LangOptions *LangOpts;
+  const DiagnosticOptions *DiagOpts;
 
-    bool ShowColumn;
-    bool CaretDiagnostics;
-    bool ShowLocation;
-    bool PrintRangeInfo;
-    bool PrintDiagnosticOption;
-    bool PrintFixItInfo;
-    unsigned MessageLength;
-    bool UseColors;
+  SourceLocation LastWarningLoc;
+  FullSourceLoc LastLoc;
+  unsigned LastCaretDiagnosticWasNote : 1;
+  unsigned OwnsOutputStream : 1;
+
+  /// A string to prefix to error messages.
+  std::string Prefix;
 
 public:
-    TextDiagnosticPrinter(llvm::raw_ostream &os,
-                          bool showColumn = true,
-                          bool caretDiagnistics = true, bool showLocation = true,
-                          bool printRangeInfo = true,
-                          bool printDiagnosticOption = true,
-                          bool printFixItInfo = true,
-                          unsigned messageLength = 0,
-                          bool useColors = false)
-        : OS(os), LangOpts(0),
-          LastCaretDiagnosticWasNote(false), ShowColumn(showColumn),
-          CaretDiagnostics(caretDiagnistics), ShowLocation(showLocation),
-          PrintRangeInfo(printRangeInfo),
-          PrintDiagnosticOption(printDiagnosticOption),
-          PrintFixItInfo(printFixItInfo),
-          MessageLength(messageLength),
-          UseColors(useColors) {}
+  TextDiagnosticPrinter(raw_ostream &os, const DiagnosticOptions &diags,
+                        bool OwnsOutputStream = false);
+  virtual ~TextDiagnosticPrinter();
 
-    void setLangOptions(const LangOptions *LO) override {
-      LangOpts = LO;
-    }
+  /// setPrefix - Set the diagnostic printer prefix string, which will be
+  /// printed at the start of any diagnostics. If empty, no prefix string is
+  /// used.
+  void setPrefix(std::string Value) { Prefix = Value; }
 
-    void PrintIncludeStack(SourceLocation Loc, const SourceManager &SM);
+  void BeginSourceFile(const LangOptions &LO, const Preprocessor *PP) {
+    LangOpts = &LO;
+  }
 
-    void HighlightRange(const SourceRange &R,
-                        const SourceManager &SrcMgr,
-                        unsigned LineNo, FileID FID,
-                        std::string &CaretLine,
-                        const std::string &SourceLine);
+  void EndSourceFile() {
+    LangOpts = 0;
+  }
 
-    void EmitCaretDiagnostic(SourceLocation Loc,
-                             SourceRange *Ranges, unsigned NumRanges,
-                             SourceManager &SM,
-                             const CodeModificationHint *Hints,
-                             unsigned NumHints,
-                             unsigned Columns);
+  void PrintIncludeStack(DiagnosticsEngine::Level Level, SourceLocation Loc,
+                         const SourceManager &SM);
 
-    virtual void HandleDiagnostic(Diagnostic::Level DiagLevel,
-                                  const DiagnosticInfo &Info) override;
-  };
+  virtual void HandleDiagnostic(DiagnosticsEngine::Level Level,
+                                const Diagnostic &Info);
 
-}// namespace clang
+  DiagnosticConsumer *clone(DiagnosticsEngine &Diags) const;
+
+private:
+  void EmitDiagnosticLoc(DiagnosticsEngine::Level Level,
+                         const Diagnostic &Info,
+                         const SourceManager &SM,
+                         PresumedLoc PLoc);
+};
+
+} // end namespace clang
 
 #endif

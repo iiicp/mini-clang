@@ -15,13 +15,14 @@
 namespace clang {
   namespace diag {
     enum {
-#define DIAG(ENUM, FLAGS, DEFAULT_MAPPING, DESC, GROUP, SFINAE) ENUM,
+#define DIAG(ENUM,FLAGS,DEFAULT_MAPPING,DESC,GROUP,\
+             SFINAE,ACCESS,NOWERROR,SHOWINSYSHEADER,CATEGORY,BRIEF,FULL) ENUM,
 #define PARSESTART
 #include "clang/Basic/DiagnosticParseKinds.inc"
 #undef DIAG
       NUM_BUILTIN_PARSE_DIAGNOSTICS
     };
-  }// end namespace diag
-}// namespace clang
+  }  // end namespace diag
+}  // end namespace clang
 
 #endif

@@ -55,20 +55,18 @@ namespace clang {
     /// action to take when avoiding concatenation of tokens in the AvoidConcat
     /// method.
     char TokenInfo[tok::NUM_TOKENS];
-
-public:
+  public:
     TokenConcatenation(Preprocessor &PP);
 
-    bool AvoidConcat(const Token &PrevTok, const Token &Tok) const;
+    bool AvoidConcat(const Token &PrevPrevTok, 
+                     const Token &PrevTok, 
+                     const Token &Tok) const;
 
-private:
-    /// StartsWithL - Return true if the spelling of this token starts with 'L'.
-    bool StartsWithL(const Token &Tok) const;
-
-    /// IsIdentifierL - Return true if the spelling of this token is literally
-    /// 'L'.
-    bool IsIdentifierL(const Token &Tok) const;
+  private:
+    /// IsIdentifierStringPrefix - Return true if the spelling of the token
+    /// is literally 'L', 'u', 'U', or 'u8'.
+    bool IsIdentifierStringPrefix(const Token &Tok) const;
   };
-}// namespace clang
+  } // end clang namespace
 
 #endif
